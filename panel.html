@@ -562,7 +562,7 @@ dialog h3 {
     <div class="stat-card percentage">
       <div class="stat-number percentage" id="occupancyRate">0%</div>
       <div class="stat-label">Ocupación</div>
-      <div class="stat-sublabel">Tasa de asistencia</div>
+      <div class="stat-sublabel">Asientos ocupados</div>
     </div>
   </div>
 
@@ -700,7 +700,7 @@ function actualizarEstadisticas() {
   const ausentes = total - presentes;
   const porcentajePresentes = total > 0 ? Math.round((presentes / total) * 100) : 0;
   const porcentajeAusentes = total > 0 ? Math.round((ausentes / total) * 100) : 0;
-  const ocupacion = total > 0 ? Math.round((total / 209) * 100) : 0;
+  const ocupacion = Math.round((presentes / 209) * 100); // Ocupación basada en presentes
   
   document.getElementById('totalCount').textContent = total;
   document.getElementById('presentCount').textContent = presentes;
