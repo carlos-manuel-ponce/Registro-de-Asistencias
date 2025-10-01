@@ -31,15 +31,21 @@ body {
 header {
   background:rgba(255,255,255,0.95);
   backdrop-filter:blur(10px);
-  padding:20px 24px;
+  padding:24px;
   border-bottom:1px solid rgba(229,231,235,0.8);
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
   position:sticky;
   top:0;
   z-index:100;
   box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+}
+
+.header-container {
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;
+  gap:24px;
+  max-width:1200px;
+  margin:0 auto;
 }
 
 .header-left {
@@ -49,8 +55,8 @@ header {
 }
 
 .header-logo {
-  width:140px;
-  height:140px;
+  width:160px;
+  height:160px;
   object-fit:contain;
   border:none;
   outline:none;
@@ -78,13 +84,15 @@ header {
 }
 
 .header-title {
-  font-size:20px;
+  font-size:28px;
   font-weight:700;
   color:var(--brand);
   margin:0;
+  text-align:center;
+  justify-self:center;
 }
 
-.header-right {
+.header-actions {
   display:flex;
   align-items:center;
   gap:16px;
@@ -234,16 +242,42 @@ main {
 }
 
 .controls-section {
-  background:var(--panel);
-  border:1px solid #333;
-  border-radius:12px;
-  padding:20px;
+  background:rgba(255,255,255,0.9);
+  backdrop-filter:blur(10px);
+  border:none;
+  border-radius:16px;
+  padding:24px;
   margin-bottom:30px;
+  box-shadow: 0 4px 20px rgba(30, 58, 138, 0.1);
+}
+
+.update-controls {
   display:flex;
-  justify-content:space-between;
   align-items:center;
+  justify-content:center;
+  gap:24px;
   flex-wrap:wrap;
-  gap:16px;
+}
+
+.update-info {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:4px;
+}
+
+.last-update-label {
+  color:var(--brand);
+  font-size:14px;
+  font-weight:600;
+}
+
+.last-update-time {
+  color:#666;
+  font-size:13px;
+  padding:4px 12px;
+  background:rgba(30, 58, 138, 0.1);
+  border-radius:8px;
 }
 
 .control-group {
@@ -438,15 +472,20 @@ dialog h3 {
 }
 
 @media(max-width:768px){
-  header {
-    flex-direction:column;
-    gap:12px;
-    padding:16px;
+  .header-container {
+    grid-template-columns:1fr;
+    text-align:center;
+    gap:16px;
   }
   
-  .header-right {
-    flex-direction:column;
-    gap:8px;
+  .header-logo {
+    width:120px;
+    height:120px;
+    justify-self:center;
+  }
+  
+  .header-title {
+    font-size:24px;
   }
   
   main {
@@ -458,10 +497,9 @@ dialog h3 {
     gap:16px;
   }
   
-  .controls-section {
+  .update-controls {
     flex-direction:column;
-    align-items:stretch;
-    text-align:center;
+    gap:16px;
   }
   
   .stage-row {
@@ -481,14 +519,13 @@ dialog h3 {
 }
 
 @media(max-width:480px){
-  .logo {
-    width:32px;
-    height:32px;
-    font-size:14px;
+  .header-logo {
+    width:100px;
+    height:100px;
   }
   
   .header-title {
-    font-size:18px;
+    font-size:20px;
   }
   
   main {
@@ -582,17 +619,10 @@ dialog h3 {
 </head>
 <body>
 <header>
-  <div class="header-left">
+  <div class="header-container">
     <img src="LOGO NUEVO COLOR_122003.png" alt="Logo Institucional" class="header-logo">
     <h1 class="header-title">Panel de Control</h1>
-  </div>
-  <div class="header-right">
-    <div class="auto-refresh">
-      <div class="refresh-indicator"></div>
-      <span>Actualización automática</span>
-    </div>
-    <div class="user-info">
-      <span>Supervisor</span>
+    <div class="header-actions">
       <button class="logout-btn" onclick="logout()">Salir</button>
     </div>
   </div>
@@ -603,32 +633,32 @@ dialog h3 {
     <div class="stat-card">
       <div class="stat-number total" id="totalCount">0</div>
       <div class="stat-label">Total Registrados</div>
-      <div class="stat-sublabel">209 asientos disponibles</div>
+      <div class="stat-sublabel">209 Asientos Disponibles</div>
     </div>
     <div class="stat-card present">
       <div class="stat-number present" id="presentCount">0</div>
       <div class="stat-label">Presentes</div>
-      <div class="stat-sublabel" id="presentSublabel">0% del total</div>
+      <div class="stat-sublabel" id="presentSublabel">Asistentes Confirmados</div>
     </div>
     <div class="stat-card absent">
       <div class="stat-number absent" id="absentCount">0</div>
       <div class="stat-label">Ausentes</div>
-      <div class="stat-sublabel" id="absentSublabel">0% del total</div>
+      <div class="stat-sublabel" id="absentSublabel">Sin Confirmar Asistencia</div>
     </div>
     <div class="stat-card percentage">
       <div class="stat-number percentage" id="occupancyRate">0%</div>
       <div class="stat-label">Ocupación</div>
-      <div class="stat-sublabel">Asientos ocupados</div>
+      <div class="stat-sublabel">Asientos Ocupados</div>
     </div>
   </div>
 
   <div class="controls-section">
-    <div class="control-group">
-      <button class="btn primary" id="actualizarBtn">Actualizar Datos</button>
-      <span class="last-update">Última actualización: <span id="lastUpdate">Nunca</span></span>
-    </div>
-    <div class="control-group">
-      <span id="connectionStatus" style="color:var(--ok);">Conectado en tiempo real</span>
+    <div class="update-controls">
+      <button class="btn primary" id="actualizarBtn">Actualizar</button>
+      <div class="update-info">
+        <span class="last-update-label">Última actualización:</span>
+        <span class="last-update-time" id="lastUpdate">Nunca</span>
+      </div>
     </div>
   </div>
 
