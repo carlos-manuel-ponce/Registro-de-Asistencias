@@ -38,17 +38,14 @@ header {
   backdrop-filter:blur(10px);
   padding:20px 24px;
   border-bottom:1px solid rgba(229,231,235,0.8);
-  display:flex;
-  justify-content:space-between;
+  display:grid;
+  grid-template-columns:auto 1fr auto;
   align-items:center;
+  gap:12px;
   box-shadow: 0 2px 12px rgba(0,0,0,0.05);
 }
 
-.header-left {
-  display:flex;
-  align-items:center;
-  gap:12px;
-}
+
 
 .header-logo {
   width:140px;
@@ -80,10 +77,12 @@ header {
 }
 
 .header-title {
-  font-size:20px;
+  font-size:28px;
   font-weight:700;
   color:var(--brand);
   margin:0;
+  text-align:center;
+  justify-self:center;
 }
 
 .user-info {
@@ -245,9 +244,9 @@ main {
 }
 
 .stat-card.absent {
-  background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%);
+  background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
   color: white;
-  border-color: #6b7280;
+  border-color: #dc2626;
 }
 
 .stat-number {
@@ -359,19 +358,19 @@ dialog.show { display:block; }
 dialog h3 {
   text-align:center;
   color:var(--brand);
-  border-bottom:1px solid #333;
   padding-bottom:12px;
   margin-bottom:20px;
   font-size:20px;
 }
 
 #detalleInfo {
-  background:#141417;
-  border:1px solid #333;
+  background:#f8f9fa;
+  border:1px solid #e5e7eb;
   padding:20px;
   border-radius:12px;
   line-height:1.8;
   font-size:15px;
+  color:#374151;
 }
 
 .modal-actions {
@@ -545,12 +544,9 @@ dialog h3 {
 </head>
 <body>
 <header>
-  <div class="header-left">
-    <img src="LOGO NUEVO COLOR_122003.png" alt="Logo Institucional" class="header-logo">
-    <h1 class="header-title">Acreditación</h1>
-  </div>
+  <img src="LOGO NUEVO COLOR_122003.png" alt="Logo Institucional" class="header-logo">
+  <h1 class="header-title">Acreditación</h1>
   <div class="user-info">
-    <span>Operador</span>
     <button class="logout-btn" onclick="logout()">Salir</button>
   </div>
 </header>
@@ -659,7 +655,6 @@ async function cargarDatos() {
     });
     
     actualizarEstadisticas();
-    console.log(`Cargados ${data.length} registros`);
     
   } catch (error) {
     console.error('Error cargando datos:', error);

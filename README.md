@@ -1,4 +1,88 @@
-# 📋 Registro de Asistencias
+# 📋 Sistema de Registro de Asistencias
+
+Sistema web moderno para registro y control de asistencias con plano interactivo de asientos y actualizaciones en tiempo real.
+
+## ✨ Características
+
+- 🎯 **Interface moderna** con diseño celestito institucional
+- 📱 **Responsive design** optimizado para móviles y tablets  
+- 🔄 **Actualizaciones en tiempo real** con Supabase
+- 🪑 **Plano interactivo** de 209 asientos organizados
+- 📊 **Dashboard** con estadísticas visuales
+- 🔐 **Autenticación** por PIN seguro
+- 🎨 **Logo institucional** integrado
+
+## 🚀 Demo en Vivo
+
+Ejecuta localmente:
+```bash
+python3 -m http.server 8000
+# Visita: http://localhost:8000
+```
+
+## 📁 Estructura del Proyecto
+
+```
+📦 plano_asistencia_supabase/
+├── 🏠 index.html              # Login principal con PIN
+├── 📊 panel.html              # Dashboard de control
+├── ✅ acreditacion.html       # Sistema de acreditación
+├── 🖼️ LOGO NUEVO COLOR_122003.png  # Logo institucional
+└── 📚 README.md              # Documentación
+```
+
+## 🛠️ Tecnologías
+
+- **Frontend**: HTML5, CSS3, JavaScript ES6
+- **Database**: Supabase (PostgreSQL)
+- **Styling**: CSS Variables, Flexbox, Grid
+- **Realtime**: Supabase Realtime subscriptions
+- **Responsive**: Mobile-first design
+
+## 📊 Funcionalidades
+
+### 🔐 Sistema de Login (index.html)
+- Acceso por PIN de 4 dígitos
+- Validación en tiempo real
+- Design compacto y optimizado
+
+### 📈 Panel de Control (panel.html)
+- Estadísticas en tiempo real
+- Plano de asientos interactivo
+- Contadores colorados por estado
+- Actualización automática cada 30s
+
+### ✅ Acreditación (acreditacion.html)
+- Búsqueda por DNI
+- Registro de asistencia
+- Historial de acreditaciones
+
+## 🎨 Design System
+
+- **Colores**: Azul institucional (#1e3a8a)
+- **Gradientes**: Fondo celestito elegante
+- **Tipografía**: Inter font family
+- **Estados**: Verde (presentes), Rojo (ausentes), Azul (ocupación)
+
+## 🔧 Configuración
+
+1. **Base de datos**: Configurar Supabase
+2. **Logo**: Reemplazar con logo institucional
+3. **Colores**: Ajustar variables CSS si necesario
+4. **PIN**: Configurar sistema de autenticación
+
+## 📱 Responsive
+
+- **Desktop**: Experiencia completa
+- **Tablet**: Layout adaptado  
+- **Mobile**: Interface compacta y táctil
+
+## 🤝 Contribución
+
+Sistema optimizado para uso institucional educativo.
+
+---
+*Desarrollado con ❤️ para la gestión eficiente de asistencias*
 
 Sistema web para el control y seguimiento de asistencia en tiempo real con **209 asientos** organizados en un plano interactivo.
 
