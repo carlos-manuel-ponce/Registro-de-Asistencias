@@ -9,27 +9,47 @@
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <style>
 :root {
-  --bg:#0b0b0c;
-  --panel:#141417;
-  --txt:#f5f6f7;
+  --bg:#ffffff;
+  --panel:#f8fafc;
+  --txt:#1f2937;
   --ok:#25d366;
-  --seat:#1b1b20;
-  --seat-border:#2a2a31;
-  --brand:#ff7a00;
+  --seat:#f1f5f9;
+  --seat-border:#cbd5e1;
+  --brand:#1e3a8a;
 }
 
 body {
   margin:0; 
   font-family:Inter,system-ui,sans-serif; 
-  background:var(--bg); 
+  background:linear-gradient(135deg, #e0f2fe 0%, #b3e5fc 100%); 
   color:var(--txt);
+  min-height:100vh;
 }
 
 header {
-  background:var(--panel);
-  padding:20px;
-  border-bottom:1px solid #222;
+  background:rgba(255,255,255,0.95);
+  backdrop-filter:blur(10px);
+  padding:24px;
+  border-bottom:1px solid rgba(229,231,235,0.8);
   text-align:center;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+}
+
+.header-logo {
+  width:140px;
+  height:140px;
+  object-fit:contain;
+  margin-bottom:24px;
+  border:none;
+  outline:none;
+  background:transparent;
+  filter:drop-shadow(0 6px 12px rgba(30, 58, 138, 0.2));
+  transition: all 0.3s ease;
+}
+
+.header-logo:hover {
+  filter:drop-shadow(0 8px 16px rgba(30, 58, 138, 0.3));
+  transform: scale(1.02);
 }
 
 .main-title {
@@ -40,7 +60,7 @@ header {
 }
 
 .subtitle {
-  color:#aaa;
+  color:var(--brand);
   font-size:14px;
   margin:0;
 }
@@ -92,8 +112,8 @@ main {
 }
 
 #actualizarBtn.updating {
-  background:#ff7a00 !important;
-  color:#000 !important;
+  background:#1e3a8a !important;
+  color:#ffffff !important;
 }
 
 #actualizarBtn.updating::after {
@@ -432,6 +452,7 @@ dialog h3 {
 </head>
 <body>
 <header>
+  <img src="LOGO NUEVO COLOR_122003.png" alt="Logo Institucional" class="header-logo">
   <h1 class="main-title">Registro de Asistencias</h1>
   <p class="subtitle">Control y seguimiento de asistencia en tiempo real</p>
 </header>
@@ -441,7 +462,7 @@ dialog h3 {
     <div class="search-bar">
       <input id="dniInput" placeholder="Ingrese DNI para buscar acreditación" />
       <button class="btn primary" id="buscarBtn">Buscar</button>
-      <button class="btn" id="actualizarBtn" style="background:var(--brand);color:#000">Actualizar</button>
+      <button class="btn" id="actualizarBtn" style="background:var(--brand);color:#ffffff">Actualizar</button>
     </div>
   </div>
   
@@ -712,7 +733,7 @@ function mostrarDetalle(seat) {
     currentDNI = dni;
     abrirModal();
   } else {
-    detalleInfo.innerHTML = '<p style="text-align:center;color:#aaa">Asiento sin asignar</p>';
+    detalleInfo.innerHTML = '<p style="text-align:center;color:#6b7280">Asiento sin asignar</p>';
     presenteBtn.style.display = 'none';
     abrirModal();
   }
