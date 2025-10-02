@@ -1,0 +1,821 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Registro de Asistencias</title>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --bg:#ffffff;
+  --panel:#f8fafc;
+  --txt:#1f2937;
+  --ok:#25d366;
+  --seat:#f1f5f9;
+  --seat-border:#cbd5e1;
+  --brand:#1e3a8a;
+}
+
+body {
+  margin:0; 
+  font-family:Inter,system-ui,sans-serif; 
+  background:linear-gradient(135deg, #e0f2fe 0%, #b3e5fc 100%); 
+  color:var(--txt);
+  min-height:100vh;
+}
+
+header {
+  background:rgba(255,255,255,0.95);
+  backdrop-filter:blur(10px);
+  padding:24px;
+  border-bottom:1px solid rgba(229,231,235,0.8);
+  text-align:center;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+}
+
+.header-logo {
+  width:140px;
+  height:140px;
+  object-fit:contain;
+  margin-bottom:24px;
+  border:none;
+  outline:none;
+  background:transparent;
+  filter:drop-shadow(0 6px 12px rgba(30, 58, 138, 0.2));
+  transition: all 0.3s ease;
+}
+
+.header-logo:hover {
+  filter:drop-shadow(0 8px 16px rgba(30, 58, 138, 0.3));
+  transform: scale(1.02);
+}
+
+.main-title {
+  font-size:28px;
+  font-weight:700;
+  color:var(--brand);
+  margin-bottom:8px;
+}
+
+.subtitle {
+  color:var(--brand);
+  font-size:14px;
+  margin:0;
+}
+
+main {
+  max-width:1200px;
+  margin:0 auto;
+  padding:20px;
+}
+
+.section {
+  margin-bottom:30px;
+}
+
+.section-title {
+  font-size:20px;
+  font-weight:600;
+  color:var(--txt);
+  margin-bottom:15px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.section-title::before {
+  content:'';
+  width:4px;
+  height:20px;
+  background:var(--brand);
+  border-radius:2px;
+}
+
+
+
+.search-bar {
+  display:flex;
+  gap:8px;
+  margin-bottom:20px;
+}
+
+#actualizarBtn {
+  position:relative;
+  transition:all 0.3s ease;
+}
+
+#actualizarBtn:hover {
+  filter:brightness(1.1) !important;
+  transform:translateY(-1px);
+}
+
+#actualizarBtn.updating {
+  background:#1e3a8a !important;
+  color:#ffffff !important;
+}
+
+#actualizarBtn.updating::after {
+  content:'';
+  position:absolute;
+  top:50%;
+  right:12px;
+  width:12px;
+  height:12px;
+  border:2px solid #000;
+  border-top:2px solid transparent;
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+  transform:translateY(-50%);
+}
+
+@keyframes spin {
+  0% { transform:translateY(-50%) rotate(0deg); }
+  100% { transform:translateY(-50%) rotate(360deg); }
+}
+
+.search-bar input {
+  flex:1;
+  padding:10px;
+  border-radius:8px;
+  border:1px solid #333;
+  background:#111;
+  color:#fff;
+  font-size:16px;
+}
+
+.btn {
+  padding:10px 16px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:600;
+  transition:0.3s;
+  min-height:44px;
+  touch-action:manipulation;
+}
+
+.btn.primary {
+  background:var(--brand);
+  color:#000;
+}
+
+.btn.primary:hover {
+  filter:brightness(1.1);
+}
+
+.btn:disabled {
+  background:#444;
+  color:#888;
+  cursor:not-allowed;
+}
+
+.btn:disabled:hover {
+  filter:none;
+}
+
+.loading {
+  position:relative;
+  overflow:hidden;
+}
+
+.loading::after {
+  content:'';
+  position:absolute;
+  top:0;left:-100%;
+  width:100%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);
+  animation:loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0%{left:-100%}
+  100%{left:100%}
+}
+
+.grid-wrap {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:20px;
+  align-items:start;
+}
+
+.stage-row {
+  display:grid;
+  grid-template-columns:auto repeat(10,1fr);
+  gap:8px;
+  align-items:center;
+  margin-bottom:4px;
+}
+
+.stage-row .row-label {
+  font-weight:bold;
+  color:var(--brand);
+  text-align:center;
+  padding-right:6px;
+  font-size:16px;
+  min-width:20px;
+}
+
+.stage-row .seat {
+  height:40px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:8px;
+  background:var(--seat);
+  border:1px solid var(--seat-border);
+  cursor:pointer;
+  transition:.2s;
+}
+
+.stage-row .seat.presente {
+  background:var(--ok);
+  color:#fff;
+}
+
+.stage-row .seat:hover {
+  transform:scale(1.05);
+}
+
+.stage-row .seat:active {
+  transform:scale(0.95);
+  transition:0.1s;
+}
+
+.stage-row .seat:focus {
+  outline:2px solid var(--brand);
+  outline-offset:2px;
+}
+
+dialog {
+  border:none;
+  border-radius:16px;
+  background:#1f1f24;
+  color:#fff;
+  padding:24px;
+  max-width:420px;
+  width:90%;
+  box-shadow:0 12px 40px rgba(0,0,0,0.5);
+  display:none;
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%, -50%);
+  z-index:999;
+}
+
+dialog.show {
+  display:block;
+}
+
+dialog h3 {
+  text-align:center;
+  color:var(--brand);
+  border-bottom:1px solid #333;
+  padding-bottom:6px;
+  margin-bottom:10px;
+}
+
+#detalleInfo {
+  background:#141417;
+  border:1px solid #2a2a31;
+  padding:16px;
+  border-radius:8px;
+  line-height:1.6;
+  font-size:14px;
+}
+
+.modal-actions {
+  display:flex;
+  justify-content:space-between;
+  margin-top:16px;
+}
+
+.overlay {
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+  display:none;
+  z-index:998;
+}
+
+.overlay.show {
+  display:block;
+}
+
+/* Responsive Design Mejorado */
+@media(min-width:769px){
+  .search-bar{
+    display:grid;
+    grid-template-columns:1fr auto auto;
+    gap:12px;
+    align-items:center;
+  }
+}
+
+@media(max-width:1024px){
+  .grid-wrap{gap:15px}
+  main{padding:18px}
+}
+
+@media(max-width:768px){
+  header{padding:16px}
+  .main-title{font-size:24px;margin-bottom:6px}
+  .subtitle{font-size:13px}
+  
+  main{padding:16px}
+  .section{margin-bottom:24px}
+  .section-title{font-size:18px;margin-bottom:12px}
+  
+  .search-bar{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:12px;
+    margin-bottom:24px;
+  }
+  .search-bar input{
+    padding:14px 16px;
+    font-size:16px;
+    border-radius:10px;
+    border:2px solid #333;
+  }
+  .search-bar .btn{
+    padding:14px 24px;
+    font-size:16px;
+    border-radius:10px;
+    font-weight:700;
+  }
+  
+  .grid-wrap{grid-template-columns:1fr;gap:16px}
+  .stage-row{
+    grid-template-columns:30px repeat(5,1fr);
+    gap:8px;
+    margin-bottom:8px;
+  }
+  .stage-row .row-label{
+    font-size:16px;
+    font-weight:800;
+    min-width:30px;
+    color:var(--brand);
+  }
+  .stage-row .seat{
+    height:48px;
+    font-size:14px;
+    font-weight:700;
+    min-width:48px;
+    border-radius:8px;
+    border:2px solid var(--seat-border);
+  }
+  
+  dialog{
+    width:92%;
+    max-width:400px;
+    margin:15px;
+    padding:24px;
+    border-radius:20px;
+  }
+  dialog h3{font-size:20px;margin-bottom:16px}
+  #detalleInfo{
+    font-size:14px;
+    padding:16px;
+    border-radius:12px;
+    line-height:1.8;
+  }
+  .modal-actions{
+    flex-direction:column;
+    gap:12px;
+    margin-top:20px;
+  }
+  .modal-actions .btn{
+    width:100%;
+    padding:16px;
+    font-size:16px;
+    border-radius:12px;
+    font-weight:700;
+  }
+}
+
+@media(max-width:480px){
+  header{padding:12px}
+  .main-title{font-size:22px}
+  main{padding:12px}
+  
+  .stage-row{
+    grid-template-columns:25px repeat(4,1fr);
+    gap:6px;
+  }
+  .stage-row .row-label{
+    font-size:14px;
+    min-width:25px;
+  }
+  .stage-row .seat{
+    height:44px;
+    font-size:13px;
+    min-width:44px;
+  }
+  
+  dialog{padding:20px}
+  .search-bar input{padding:12px 14px}
+  .search-bar .btn{padding:12px 16px;font-size:14px}
+}
+
+@media(max-width:360px){
+  .stage-row{
+    grid-template-columns:20px repeat(3,1fr);
+    gap:4px;
+  }
+  .stage-row .row-label{
+    font-size:12px;
+    min-width:20px;
+  }
+  .stage-row .seat{
+    height:40px;
+    font-size:12px;
+    min-width:40px;
+  }
+}
+
+@media(orientation:landscape) and (max-height:600px){
+  header{padding:10px}
+  .main-title{font-size:20px}
+  .subtitle{font-size:12px}
+  main{padding:12px}
+  .section{margin-bottom:16px}
+  .section-title{font-size:16px;margin-bottom:10px}
+  .stage-row{margin-bottom:4px}
+  .stage-row .seat{height:36px;font-size:11px}
+  .search-bar{flex-direction:row;gap:8px}
+}
+</style>
+</head>
+<body>
+<header>
+  <img src="LOGO NUEVO COLOR_122003.png" alt="Logo Institucional" class="header-logo">
+  <h1 class="main-title">Registro de Asistencias</h1>
+  <p class="subtitle">Control y seguimiento de asistencia en tiempo real</p>
+</header>
+<main>
+  <div class="section">
+    <h2 class="section-title">Buscador</h2>
+    <div class="search-bar">
+      <input id="dniInput" placeholder="Ingrese DNI para buscar acreditación" />
+      <button class="btn primary" id="buscarBtn">Buscar</button>
+      <button class="btn" id="actualizarBtn" style="background:var(--brand);color:#ffffff">Actualizar</button>
+    </div>
+  </div>
+  
+  <div class="section">
+    <h2 class="section-title">Plano en Tiempo Real</h2>
+    <div class="grid-wrap" id="wrap"></div>
+  </div>
+</main>
+
+<div class="overlay" id="overlay"></div>
+<dialog id="modalDetalle">
+  <h3>Detalle del Asistente</h3>
+  <p id="detalleInfo"></p>
+  <div class="modal-actions">
+    <button id="presenteBtn" class="btn primary">Dar Asistencia</button>
+    <button id="cerrarModal" class="btn" style="background:#222;color:#fff">Cerrar</button>
+  </div>
+</dialog>
+
+<script>
+// Configuración de la aplicación
+const SUPABASE_URL = 'https://csbcfhwdpstnofvsfqwh.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNzYmNmaHdkcHN0bm9mdnNmcXdoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYxMjkzODcsImV4cCI6MjA3MTcwNTM4N30.lX166U64tFeqKd6snFduL-oXWD_LXwzPMyQYVF3g8ek';
+
+// Inicializar Supabase
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Variables globales
+const wrap = document.getElementById('wrap');
+const modal = document.getElementById('modalDetalle');
+const overlay = document.getElementById('overlay');
+const detalleInfo = document.getElementById('detalleInfo');
+const cerrarModal = document.getElementById('cerrarModal');
+const presenteBtn = document.getElementById('presenteBtn');
+const dniInput = document.getElementById('dniInput');
+const actualizarBtn = document.getElementById('actualizarBtn');
+
+let dataAsistencia = {};
+let currentDNI = null;
+let currentSeat = null;
+
+// Crear sectores del plano de asientos
+function crearSector(inicio, fin) {
+  const div = document.createElement('div');
+  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  let filaIndex = Math.floor((inicio - 1) / 10);
+  
+  for (let i = inicio; i <= fin; i += 10) {
+    const row = document.createElement('div');
+    row.className = 'stage-row';
+    
+    const letter = document.createElement('div');
+    letter.className = 'row-label';
+    letter.textContent = letters[filaIndex] || '';
+    row.appendChild(letter);
+    
+    for (let j = i; j < i + 10 && j <= fin; j++) {
+      const seat = document.createElement('div');
+      seat.className = 'seat';
+      seat.textContent = j;
+      seat.dataset.id = j;
+      seat.addEventListener('click', () => mostrarDetalle(seat));
+      row.appendChild(seat);
+    }
+    
+    div.appendChild(row);
+    filaIndex++;
+  }
+  return div;
+}
+
+// Cargar datos desde Supabase
+async function cargarDatos() {
+  try {
+    console.log('Cargando datos desde Supabase...');
+    
+    const { data, error } = await supabase
+      .from('asistencia')
+      .select('*');
+    
+    if (error) {
+      console.error('Error cargando datos:', error);
+      return;
+    }
+    
+    // Convertir array a objeto con DNI como clave
+    dataAsistencia = {};
+    data.forEach(registro => {
+      dataAsistencia[registro.dni] = {
+        id: registro.id,
+        region: registro.region,
+        establecimiento: registro.establecimiento,
+        cargo: registro.cargo,
+        aspirante: registro.aspirante,
+        dni: registro.dni,
+        asiento: registro.asiento,
+        presente: registro.presente
+      };
+    });
+    
+    // Actualizar interfaz
+    actualizarAsientosPresentes();
+    console.log(`Cargados ${data.length} registros`);
+    
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+// Actualizar asientos que ya están presentes
+function actualizarAsientosPresentes() {
+  Object.values(dataAsistencia).forEach(info => {
+    if (info.presente) {
+      const seat = document.querySelector(`.seat[data-id="${info.asiento}"]`);
+      if (seat) seat.classList.add('presente');
+    }
+  });
+}
+
+// Función para actualizar manualmente
+async function actualizarRegistros() {
+  actualizarBtn.classList.add('updating');
+    actualizarBtn.textContent = 'Actualizando...';
+    actualizarBtn.disabled = true;  try {
+    // Limpiar asientos presentes actuales
+    document.querySelectorAll('.seat.presente').forEach(seat => {
+      seat.classList.remove('presente');
+    });
+    
+    // Recargar datos
+    await cargarDatos();
+    
+    actualizarBtn.textContent = 'Actualizado';
+    actualizarBtn.style.background = '#25d366';
+    actualizarBtn.style.color = '#fff';
+    
+    setTimeout(() => {
+      actualizarBtn.textContent = 'Actualizar';
+      actualizarBtn.style.background = 'var(--brand)';
+      actualizarBtn.style.color = '#000';
+      actualizarBtn.classList.remove('updating');
+      actualizarBtn.disabled = false;
+    }, 2000);
+    
+  } catch (error) {
+    console.error('Error actualizando:', error);
+    actualizarBtn.textContent = 'Error';
+    actualizarBtn.style.background = '#d32f2f';
+    actualizarBtn.style.color = '#fff';
+    
+    setTimeout(() => {
+      actualizarBtn.textContent = 'Actualizar';
+      actualizarBtn.style.background = 'var(--brand)';
+      actualizarBtn.style.color = '#000';
+      actualizarBtn.classList.remove('updating');
+      actualizarBtn.disabled = false;
+    }, 3000);
+  }
+}
+
+// Suscripción en tiempo real
+function suscribirCambios() {
+  const subscription = supabase
+    .channel('asistencia-changes')
+    .on('postgres_changes', 
+      { 
+        event: 'UPDATE', 
+        schema: 'public', 
+        table: 'asistencia' 
+      }, 
+      (payload) => {
+        console.log('Cambio detectado:', payload);
+        const registro = payload.new;
+        
+        // Actualizar datos locales
+        if (dataAsistencia[registro.dni]) {
+          dataAsistencia[registro.dni] = {
+            id: registro.id,
+            region: registro.region,
+            establecimiento: registro.establecimiento,
+            cargo: registro.cargo,
+            aspirante: registro.aspirante,
+            dni: registro.dni,
+            asiento: registro.asiento,
+            presente: registro.presente
+          };
+          
+          // Actualizar interfaz si se marcó presente
+          if (registro.presente) {
+            const seat = document.querySelector(`.seat[data-id="${registro.asiento}"]`);
+            if (seat && !seat.classList.contains('presente')) {
+              seat.classList.add('presente');
+              console.log(`Asiento ${registro.asiento} marcado presente en tiempo real`);
+            }
+          }
+        }
+      }
+    )
+    .subscribe();
+    
+  console.log('Suscripción a tiempo real activada');
+}
+
+// Funciones del modal
+function abrirModal() {
+  modal.classList.add('show');
+  overlay.classList.add('show');
+}
+
+function cerrar() {
+  modal.classList.remove('show');
+  overlay.classList.remove('show');
+}
+
+// Buscar por DNI
+function buscarDNI(dni) {
+  if (!dni) return alert('Ingrese un DNI');
+  
+  currentDNI = dni;
+  const info = dataAsistencia[dni];
+  
+  if (info) {
+    const seat = document.querySelector(`.seat[data-id="${info.asiento}"]`);
+    currentSeat = seat;
+    
+    detalleInfo.innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 2fr;gap:8px;line-height:1.8">
+        <b>Región:</b> <span>${info.region}</span>
+        <b>Establecimiento:</b> <span>${info.establecimiento}</span>
+        <b>Cargo:</b> <span>${info.cargo}</span>
+        <b>Aspirante:</b> <span>${info.aspirante}</span>
+        <b>DNI:</b> <span>${info.dni}</span>
+        <b>Asiento:</b> <span>${info.asiento}</span>
+      </div>
+    `;
+    
+    presenteBtn.style.display = 'block';
+    presenteBtn.textContent = seat.classList.contains('presente') ? 'Ya Presente' : 'Dar Asistencia';
+    presenteBtn.disabled = seat.classList.contains('presente');
+    abrirModal();
+  } else {
+    alert('El DNI ingresado no corresponde a ningún asistente.');
+  }
+}
+
+// Mostrar detalle al hacer clic en asiento
+function mostrarDetalle(seat) {
+  const id = seat.dataset.id;
+  const registro = Object.entries(dataAsistencia).find(([dni, info]) => info.asiento == id);
+  
+  if (registro) {
+    const [dni, info] = registro;
+    detalleInfo.innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 2fr;gap:8px;line-height:1.8">
+        <b>Región:</b> <span>${info.region}</span>
+        <b>Establecimiento:</b> <span>${info.establecimiento}</span>
+        <b>Cargo:</b> <span>${info.cargo}</span>
+        <b>Aspirante:</b> <span>${info.aspirante}</span>
+        <b>DNI:</b> <span>${info.dni}</span>
+        <b>Asiento:</b> <span>${info.asiento}</span>
+      </div>
+    `;
+    
+    presenteBtn.style.display = 'block';
+    presenteBtn.textContent = seat.classList.contains('presente') ? 'Ya Presente' : 'Dar Asistencia';
+    presenteBtn.disabled = seat.classList.contains('presente');
+    currentSeat = seat;
+    currentDNI = dni;
+    abrirModal();
+  } else {
+    detalleInfo.innerHTML = '<p style="text-align:center;color:#6b7280">Asiento sin asignar</p>';
+    presenteBtn.style.display = 'none';
+    abrirModal();
+  }
+}
+
+// Event Listeners
+presenteBtn.onclick = async () => {
+  if (!currentSeat || !currentDNI) return alert('Error: no hay asistente seleccionado.');
+  if (currentSeat.classList.contains('presente')) return;
+  
+  try {
+    presenteBtn.textContent = 'Guardando...';
+    presenteBtn.disabled = true;
+    presenteBtn.classList.add('loading');
+    
+    // Marcar asistencia en Supabase
+    const { error } = await supabase
+      .from('asistencia')
+      .update({ 
+        presente: true, 
+        fecha_asistencia: new Date().toISOString() 
+      })
+      .eq('dni', currentDNI);
+    
+    if (error) {
+      console.error('Error marcando asistencia:', error);
+      alert('Error guardando asistencia');
+      presenteBtn.textContent = 'Dar Asistencia';
+      presenteBtn.disabled = false;
+      presenteBtn.classList.remove('loading');
+      return;
+    }
+    
+    // Actualizar datos locales
+    dataAsistencia[currentDNI].presente = true;
+    
+    // Actualizar interfaz
+    currentSeat.classList.add('presente');
+    presenteBtn.textContent = 'Asistencia Registrada';
+    presenteBtn.classList.remove('loading');
+    
+    console.log(`Asistencia registrada para DNI: ${currentDNI}`);
+    
+    setTimeout(() => {
+      cerrar();
+    }, 1000);
+    
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Error de conexión');
+    presenteBtn.textContent = 'Dar Asistencia';
+    presenteBtn.disabled = false;
+    presenteBtn.classList.remove('loading');
+  }
+};
+
+cerrarModal.onclick = cerrar;
+overlay.addEventListener('click', cerrar);
+
+document.getElementById('buscarBtn').onclick = () => {
+  const dni = dniInput.value.trim();
+  buscarDNI(dni);
+};
+
+actualizarBtn.onclick = actualizarRegistros;
+
+// Permitir buscar con Enter
+dniInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    const dni = dniInput.value.trim();
+    buscarDNI(dni);
+  }
+});
+
+// Inicializar aplicación
+wrap.appendChild(crearSector(1, 100));
+wrap.appendChild(crearSector(101, 209));
+
+// Cargar datos al iniciar
+cargarDatos().then(() => {
+  suscribirCambios();
+});
+</script>
+</body>
+</html>
